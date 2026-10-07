@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 from agent import llm, sandbox
-from agent.missions import budget, permission, prompt, stop_check, trimming
+from agent.missions import budget, caching, permission, prompt, stop_check, trimming
 from agent.trace import Trace
 
 # Stop the model right after its first command. Otherwise it writes ten commands at
@@ -28,7 +28,8 @@ def solve(task: str, trace: Trace, container: str = sandbox.CONTAINER) -> str:
         if out_of_budget:
             return out_of_budget
 
-        reply = llm.ask(trimming.trim(messages), stop=STOP_AFTER_COMMAND)
+        context = caching.mark(trimming.trim(messages))
+        reply = llm.ask(context, stop=STOP_AFTER_COMMAND)
         messages.append({"role": "assistant", "content": reply.text})
         trace.model_said(reply)
 

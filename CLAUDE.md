@@ -60,6 +60,7 @@ Each is a file in `agent/missions/` called once from `solve()`; `MISSIONS=none` 
 3. **Budget**: max steps and max cost, graceful exit
 4. *(optional)* **Context trimming**: shorten old command outputs so history doesn't explode
 5. *(optional)* **System prompt**: change it, measure the effect with the scoreboard
+6. *(optional)* **Caching**: mark the conversation so the provider remembers its start (re-sent tokens ~10x cheaper, Claude only above 4,096 tokens). Trimming works in batches of 10 messages so it doesn't break the cache every step
 
 ## Demo project and bugs
 
@@ -77,7 +78,7 @@ Ubuntu and macOS; Windows only via WSL2. The Makefile must work with GNU make 3.
 
 ## Scoreboard
 
-For each bug, in parallel: fresh container, run the agent (killed after 5 min, no stdin so the permission gate refuses), run the tests, check `tests/` is untouched. One table: result, steps, tokens, estimated $ (gateway prices), time, why it stopped. Saved in `runs/score-<time>/`.
+Default exam: bugs 01, 04, 05 (`BUGS=all` for every bug). For each bug, in parallel: fresh container, run the agent (killed after 5 min, no stdin so the permission gate refuses), run the tests, check `tests/` is untouched. One table: result, steps, tokens, $ (the real cost reported by Vercel AI Gateway; estimated from its price list for other endpoints), time, why it stopped. Saved in `runs/score-<time>/`.
 
 ## Lab demo (host only, built last)
 

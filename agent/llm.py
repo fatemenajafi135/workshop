@@ -21,7 +21,8 @@ class Reply:
     text: str
     input_tokens: int
     output_tokens: int
-    cost: float | None  # dollars, None if the endpoint doesn't publish prices
+    cached_tokens: int  # part of input_tokens the provider remembered (cheaper)
+    cost: float | None  # dollars, None if unknown
 
 
 def ask(messages: list[dict], stop: list[str] | None = None) -> Reply:
@@ -34,15 +35,21 @@ def ask(messages: list[dict], stop: list[str] | None = None) -> Reply:
     usage = response.usage
     input_tokens = usage.prompt_tokens if usage else 0
     output_tokens = usage.completion_tokens if usage else 0
+    details = getattr(usage, "prompt_tokens_details", None)
+    cached_tokens = (details.cached_tokens or 0) if details else 0
+    # Vercel AI Gateway reports the real cost of each call (cache discounts included).
+    real_cost = (usage.model_extra or {}).get("cost") if usage else None
     return Reply(
         text=response.choices[0].message.content or "",
         input_tokens=input_tokens,
         output_tokens=output_tokens,
-        cost=cost(model, input_tokens, output_tokens),
+        cached_tokens=cached_tokens,
+        cost=real_cost if real_cost is not None else estimated_cost(model, input_tokens, output_tokens),
     )
 
 
-def cost(model: str, input_tokens: int, output_tokens: int) -> float | None:
+def estimated_cost(model: str, input_tokens: int, output_tokens: int) -> float | None:
+    """For endpoints that don't report the cost: tokens times the listed price."""
     price = prices(model)
     if price is None:
         return None

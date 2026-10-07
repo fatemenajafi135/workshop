@@ -1,7 +1,8 @@
 """Runs the agent on every bug, each in its own fresh sandbox, and prints one table.
 
-    make score                    # all bugs
-    make score BUGS=01,04,05      # some bugs
+    make score                    # the small exam: bugs 01, 04, 05
+    make score BUGS=all           # every bug
+    make score BUGS=02,03         # the bugs you choose
     make score MISSIONS=none      # the agent without its missions, to compare
 
 Fixed = the whole test suite passes and the agent didn't touch the tests.
@@ -31,8 +32,8 @@ console = Console()
 def main() -> None:
     load_env()
     bugs = sorted(path.parent for path in ROOT.glob("bugs/*/issue.md"))
-    chosen = os.environ.get("BUGS")
-    if chosen:
+    chosen = os.environ.get("BUGS") or "all"
+    if chosen != "all":
         bugs = [bug for bug in bugs if bug.name.split("-")[0] in chosen.split(",")]
     out_dir = ROOT / "runs" / f"score-{datetime.now():%Y%m%d-%H%M%S}"
     out_dir.mkdir(parents=True)

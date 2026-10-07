@@ -23,6 +23,7 @@ class Trace:
         self.steps = 0
         self.input_tokens = 0
         self.output_tokens = 0
+        self.cached_tokens = 0
         self.cost: float | None = 0.0  # None once any step had an unknown price
         self.events: list[dict] = []
         self.result: str | None = None
@@ -36,15 +37,17 @@ class Trace:
         self.steps += 1
         self.input_tokens += reply.input_tokens
         self.output_tokens += reply.output_tokens
+        self.cached_tokens += reply.cached_tokens
         if self.cost is not None and reply.cost is not None:
             self.cost += reply.cost
         else:
             self.cost = None
 
-        console.rule(f"[bold]step {self.steps}[/]  ·  {self.tokens():,} tokens  ·  {self.money()}")
+        cached = f" ({reply.cached_tokens:,} cached)" if reply.cached_tokens else ""
+        console.rule(f"[bold]step {self.steps}[/]{cached}  ·  {self.tokens():,} tokens  ·  {self.money()}")
         console.print(Markdown(reply.text))
         self.add("model", text=reply.text, input_tokens=reply.input_tokens,
-                 output_tokens=reply.output_tokens, cost=reply.cost)
+                 output_tokens=reply.output_tokens, cached_tokens=reply.cached_tokens, cost=reply.cost)
 
     def ran(self, command: str, output: str) -> None:
         lines = output.splitlines()
@@ -90,6 +93,7 @@ class Trace:
             "steps": self.steps,
             "input_tokens": self.input_tokens,
             "output_tokens": self.output_tokens,
+            "cached_tokens": self.cached_tokens,
             "cost": self.cost,
             "seconds": round(self.seconds(), 1),
             "events": self.events,

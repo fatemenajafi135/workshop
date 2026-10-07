@@ -7,7 +7,7 @@ Every mission can be switched off, to show the habit it fixes:
 
 import os
 
-ALL = ["permission", "stop_check", "budget", "trimming", "prompt"]
+ALL = ["permission", "stop_check", "budget", "trimming", "prompt", "caching"]
 
 
 def on(name: str) -> bool:

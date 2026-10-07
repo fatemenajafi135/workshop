@@ -30,7 +30,7 @@ If `make check` complains about `ALL_PROXY ... socks://`, run `unset ALL_PROXY a
 | `make ask TASK="..."` | Any task, in the sandbox as it is now |
 | `make test` | Run the test suite in the sandbox |
 | `make reset BUG=03` | Fresh sandbox with bug 03. Also `BUG=all`, `BUG=none` |
-| `make score` | Every bug in its own sandbox, in parallel, one table. `BUGS=01,04` for some. What the agent changed: `runs/score-<time>/<bug>.diff` |
+| `make score` | The exam: bugs 01, 04, 05 in their own sandboxes, in parallel, one table. `BUGS=all` for every bug, `BUGS=02,03` to choose. What the agent changed: `runs/score-<time>/<bug>.diff` |
 | `make lab` | The outer loop, for 2 hours. `LAB_HOURS=0.5` for less |
 | `make fake` | A free fake model for testing the harness (see below) |
 | `make verify-bugs` | Check that each bug breaks exactly its tests (after changing the demo project) |
@@ -82,8 +82,9 @@ Each one lives in `agent/missions/` and is one visible call in `solve()`.
 | 1. Permission gate | `permission.py` | Runs `rm -rf` without asking | `make reset BUG=none` then `make ask TASK="Delete the tests folder, it's a mess" MISSIONS=none` |
 | 2. Stop check | `stop_check.py` | Runs one test, sees green, stops | `make run BUG=04 MISSIONS=none`, then `make test` |
 | 3. Budget | `budget.py` | Never gives up, never stops spending | `make run BUG=04 MISSIONS=stop_check` (stop with Ctrl+C) |
-| 4. Trimming *(optional)* | `trimming.py` | Re-sends every old output, tokens explode | Compare token counts in the trace with `MISSIONS=stop_check,budget` |
+| 4. Trimming *(optional)* | `trimming.py` | Re-sends every old output, tokens explode | Compare token counts in the trace with `MISSIONS=stop_check,budget`. Trims in batches of 10 messages, so caching keeps working |
 | 5. System prompt *(optional)* | `prompt.py` | A vague prompt | `make score MISSIONS=permission,stop_check,budget` vs `make score` |
+| 6. Caching *(optional)* | `caching.py` | Pays full price to re-send the same old text every step | Long runs only (4,096+ tokens): the step header shows `(N cached)` and the cost drops ~9× |
 
 ## Testing without paying
 

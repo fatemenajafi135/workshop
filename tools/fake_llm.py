@@ -64,6 +64,13 @@ SCRIPTS = {
 DEFAULT = [bash("python -m pytest -q"), "I could not figure this out."]
 
 
+def text_of(content):
+    """Message content is text, or a list of parts when caching marks it."""
+    if isinstance(content, str):
+        return content
+    return "".join(part.get("text", "") for part in content)
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass
@@ -88,11 +95,11 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         request = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         messages = request["messages"]
-        task = messages[1]["content"]
+        task = text_of(messages[1]["content"])
         turn = sum(1 for m in messages if m["role"] == "assistant")
         script = next((s for key, s in SCRIPTS.items() if key in task), DEFAULT)
         text = script[turn] if turn < len(script) else script[-1]
-        prompt_tokens = sum(len(m["content"]) for m in messages) // 4
+        prompt_tokens = sum(len(text_of(m["content"])) for m in messages) // 4
         self.send_json({
             "id": "fake", "object": "chat.completion", "created": 0, "model": request["model"],
             "choices": [{"index": 0, "finish_reason": "stop",

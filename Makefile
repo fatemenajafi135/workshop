@@ -4,8 +4,9 @@ BUG = 01
 # Which missions are on: all, none, or a list like budget,stop_check (see agent/missions/).
 MISSIONS = all
 export MISSIONS
-# Which bugs `make score` runs: empty = all, or a list like 01,04,05.
-BUGS =
+# Which bugs `make score` runs: a small exam by default (easy, stops-too-early, tricky).
+# BUGS=all for every bug, or a list like BUGS=02,03.
+BUGS = 01,04,05
 export BUGS
 
 # BUG=03 plants bugs/03-*/bug.patch, BUG=all plants every bug, BUG=none plants nothing.
