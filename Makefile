@@ -15,7 +15,7 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset run ask score lab test check verify-bugs
+.PHONY: setup reset run ask score lab fake test check verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -48,6 +48,11 @@ score:
 # Host-only: the agent optimizes lab/optimal.py for hours. make lab LAB_HOURS=0.5
 lab:
 	.venv/bin/python -m lab.lab
+
+# A free fake model for testing the harness. Then, in another terminal:
+#   make score MODEL=fake/model BASE_URL=http://127.0.0.1:8765/v1
+fake:
+	.venv/bin/python tools/fake_llm.py
 
 # Run the test suite inside the container.
 test:

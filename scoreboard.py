@@ -5,6 +5,7 @@
     make score MISSIONS=none      # the agent without its missions, to compare
 
 Fixed = the whole test suite passes and the agent didn't touch the tests.
+What the agent changed is saved as runs/score-<time>/<bug>.diff.
 """
 
 import json
@@ -34,6 +35,7 @@ def main() -> None:
     if chosen:
         bugs = [bug for bug in bugs if bug.name.split("-")[0] in chosen.split(",")]
     out_dir = ROOT / "runs" / f"score-{datetime.now():%Y%m%d-%H%M%S}"
+    out_dir.mkdir(parents=True)
 
     model = os.environ.get("MODEL") or "(MODEL from .env)"
     missions = os.environ.get("MISSIONS") or "all"
@@ -66,7 +68,10 @@ def score(bug: Path, out_dir: Path) -> dict:
     seconds = time.time() - started
 
     tests_pass = docker_exec(container, "python", "-m", "pytest", "-q") == 0
-    tests_untouched = docker_exec(container, "git", "diff", "--quiet", "HEAD", "--", "tests") == 0
+    tests_changed = run_in(container, "git status --porcelain -- tests")
+    tests_untouched = tests_changed.strip() == ""
+    # Save what the agent changed (new files too) before the container is deleted.
+    (out_dir / f"{bug.name}.diff").write_text(run_in(container, "git add -A && git diff --cached"))
     subprocess.run(["docker", "rm", "-f", container], capture_output=True)
 
     trace = json.loads(trace_file.read_text()) if trace_file.exists() else {}
@@ -123,6 +128,12 @@ def make(*args: str) -> None:
 
 def docker_exec(container: str, *command: str) -> int:
     return subprocess.run(["docker", "exec", container, *command], capture_output=True).returncode
+
+
+def run_in(container: str, shell_command: str) -> str:
+    """Run a shell command in the container, return what it printed."""
+    command = ["docker", "exec", container, "sh", "-c", shell_command]
+    return subprocess.run(command, capture_output=True, text=True).stdout
 
 
 if __name__ == "__main__":

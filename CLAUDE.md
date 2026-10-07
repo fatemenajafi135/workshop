@@ -25,7 +25,7 @@ optimizes code by itself for the whole session).
 
 - The **agent runs on the host** (`agent/`). Every command the model asks for runs **inside a Docker container** via `docker exec` with a timeout. Nothing the model runs touches the host.
 - The demo project is **copied into the image, not bind-mounted**. A bad command can only break the container; `make reset` recreates it.
-- The model replies in plain text with one ```bash``` block per step. No native tool-calling: keeps the loop model-agnostic and easy to explain on a slide. No bash block = the agent thinks it's done.
+- The model replies in plain text with one ```bash``` block per step. No native tool-calling: keeps the loop model-agnostic and easy to explain on a slide. No bash block = the agent thinks it's done. The model is stopped after its first command (`stop` sequences in `core.py`): Claude models otherwise write many commands per reply in their own `<invoke name="bash">` format and invent the results (seen in the first real score run: $2.13, 2/6 fixed). That format is accepted too.
 - Model and API key come from `.env` (`MODEL=`, `API_KEY=`, optional `BASE_URL=`). One small wrapper, `agent/llm.py`, using the `openai` SDK against any OpenAI-compatible endpoint; default is **Vercel AI Gateway** (one key, most providers). The only model name in the repo is the default in `.env.example`.
 
 ## Layout
@@ -40,6 +40,7 @@ agent/
 demo_project/    # clean `splitter` package + pytest tests (all green)
 bugs/<id>/       # issue.md (what a user would write), bug.patch, test.txt
 scoreboard.py    # runs the agent on every bug in a fresh container, prints a table
+tools/fake_llm.py # scripted OpenAI-compatible fake model, `make fake`; free harness testing
 check.py         # verifies Python, Docker, sandbox, test runner, model call (stops at first problem)
 lab/             # host-only outer loop: lab.py, optimal.py (slow target), bench.py (hidden), test_optimal.py
 Dockerfile
@@ -120,4 +121,4 @@ Autoresearch-style outer loop: the agent makes `fewest_transfers()` (exact, slow
 
 - Which model for the session (default in `.env.example`: `anthropic/claude-haiku-4.5`), and a shared gateway key with a hard spending cap
 - The attendee version: what they get, how minimal, and its branches
-- First real-model runs: none yet (all testing so far used a scripted fake model)
+- Model choice by real scoreboard runs: cost per bug, not price per token (gpt-5-mini used 17x more output tokens than Haiku on the same small task, because of hidden reasoning)

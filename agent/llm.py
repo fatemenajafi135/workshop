@@ -24,10 +24,13 @@ class Reply:
     cost: float | None  # dollars, None if the endpoint doesn't publish prices
 
 
-def ask(messages: list[dict]) -> Reply:
-    """Send the conversation so far, get the model's next message back."""
+def ask(messages: list[dict], stop: list[str] | None = None) -> Reply:
+    """Send the conversation so far, get the model's next message back.
+
+    `stop`: the model stops writing as soon as it writes one of these.
+    """
     model = setting("MODEL")
-    response = client().chat.completions.create(model=model, messages=messages)
+    response = client().chat.completions.create(model=model, messages=messages, stop=stop)
     usage = response.usage
     input_tokens = usage.prompt_tokens if usage else 0
     output_tokens = usage.completion_tokens if usage else 0

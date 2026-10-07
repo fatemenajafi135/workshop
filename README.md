@@ -29,8 +29,9 @@ If `make check` complains about `ALL_PROXY ... socks://`, run `unset ALL_PROXY a
 | `make ask TASK="..."` | Any task, in the sandbox as it is now |
 | `make test` | Run the test suite in the sandbox |
 | `make reset BUG=03` | Fresh sandbox with bug 03. Also `BUG=all`, `BUG=none` |
-| `make score` | Every bug in its own sandbox, in parallel, one table. `BUGS=01,04` for some |
+| `make score` | Every bug in its own sandbox, in parallel, one table. `BUGS=01,04` for some. What the agent changed: `runs/score-<time>/<bug>.diff` |
 | `make lab` | The outer loop, for 2 hours. `LAB_HOURS=0.5` for less |
+| `make fake` | A free fake model for testing the harness (see below) |
 | `make verify-bugs` | Check that each bug breaks exactly its tests (after changing the demo project) |
 
 Add `MISSIONS=none` (or a list like `MISSIONS=budget,stop_check`) to `run`, `ask` or
@@ -50,6 +51,9 @@ agent/missions/ fixes for bad habits
 
 - The model replies in plain text with one ```` ```bash ```` block per step.
   No bash block = it thinks it's done.
+- We stop the model right after its first command (the API's `stop` option).
+  Without that, Claude models wrote up to 39 commands per reply, in their own
+  `<invoke name="bash">` format, and invented the results. We accept that format too.
 - Every command runs in the container. The project is copied in, not mounted:
   the worst a command can do is break the container, and `make reset` replaces it.
 
@@ -79,6 +83,16 @@ Each one lives in `agent/missions/` and is one visible call in `solve()`.
 | 3. Budget | `budget.py` | Never gives up, never stops spending | `make run BUG=04 MISSIONS=stop_check` (stop with Ctrl+C) |
 | 4. Trimming *(optional)* | `trimming.py` | Re-sends every old output, tokens explode | Compare token counts in the trace with `MISSIONS=stop_check,budget` |
 | 5. System prompt *(optional)* | `prompt.py` | A vague prompt | `make score MISSIONS=permission,stop_check,budget` vs `make score` |
+
+## Testing without paying
+
+`make fake` starts a fake model: free, instant, always the same scripted answers.
+Use it when you change the harness, not when you want to know how good the AI is.
+
+```bash
+make fake                                                       # terminal 1
+make score MODEL=fake/model BASE_URL=http://127.0.0.1:8765/v1  # terminal 2
+```
 
 ## The lab
 

@@ -12,6 +12,10 @@ from agent import llm, sandbox
 from agent.missions import budget, permission, prompt, stop_check, trimming
 from agent.trace import Trace
 
+# Stop the model right after its first command. Otherwise it writes ten commands at
+# once and invents their output, which we pay for and which confuses it later.
+STOP_AFTER_COMMAND = ["```\n", "</function_calls>"]
+
 
 def solve(task: str, trace: Trace, container: str = sandbox.CONTAINER) -> str:
     """Work on the task until done. Returns why it stopped."""
@@ -24,7 +28,7 @@ def solve(task: str, trace: Trace, container: str = sandbox.CONTAINER) -> str:
         if out_of_budget:
             return out_of_budget
 
-        reply = llm.ask(trimming.trim(messages))
+        reply = llm.ask(trimming.trim(messages), stop=STOP_AFTER_COMMAND)
         messages.append({"role": "assistant", "content": reply.text})
         trace.model_said(reply)
 
@@ -47,8 +51,14 @@ def solve(task: str, trace: Trace, container: str = sandbox.CONTAINER) -> str:
 
 
 def find_command(text: str) -> str | None:
-    """The first ```bash block in the model's reply, or None if there is none."""
-    match = re.search(r"```bash\s*\n(.*?)```", text, re.DOTALL)
+    """The first command in the reply, or None if there is none.
+
+    We ask for a ```bash block. Claude models sometimes use their own tool format
+    instead (<invoke name="bash">), so we accept that too.
+    """
+    match = re.search(r"```bash\s*\n(.*?)(?:```|$)", text, re.DOTALL) or re.search(
+        r'<invoke name="bash">\s*<parameter name="\w+">(.*?)</parameter>', text, re.DOTALL
+    )
     return match.group(1).strip() if match else None
 
 
