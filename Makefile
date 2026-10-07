@@ -1,6 +1,8 @@
 IMAGE = mini-agent-sandbox
 CONTAINER = mini-agent
 BUG = 01
+# Which Python makes the .venv: make setup PYTHON=python3.12 (needs 3.12 or newer)
+PYTHON = python3
 # Which missions are on: all, none, or a list like budget,stop_check (see agent/missions/).
 MISSIONS = all
 export MISSIONS
@@ -20,7 +22,7 @@ endif
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
-	python3 -m venv .venv
+	$(PYTHON) -m venv .venv
 	.venv/bin/pip install -q -r requirements.txt
 	[ -f .env ] || cp .env.example .env
 	docker build -t $(IMAGE) .

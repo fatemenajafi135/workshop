@@ -8,6 +8,7 @@ import platform
 import shutil
 import subprocess
 import sys
+from urllib.parse import urlparse
 
 IMAGE = "mini-agent-sandbox"
 CONTAINER = "mini-agent"
@@ -78,7 +79,8 @@ def check_model() -> str:
     except Exception as error:
         raise Problem(f"the model call failed: {type(error).__name__}: {str(error)[:300]}")
     tokens = f"{reply.input_tokens} tokens in, {reply.output_tokens} out"
-    return f"{os.environ['MODEL']} replied {reply.text.strip()!r} ({tokens})"
+    host = urlparse(os.environ.get("BASE_URL") or llm.GATEWAY_URL).hostname
+    return f"{os.environ['MODEL']} via {host} replied {reply.text.strip()!r} ({tokens})"
 
 
 CHECKS = [

@@ -55,6 +55,7 @@ def build() -> None:
         shutil.copy(source, ROOT / "agent" / source.relative_to(ROOT / "attendee" / "agent"))
     shutil.copy(ROOT / "attendee" / "README.md", ROOT / "README.md")
     shutil.copy(ROOT / "attendee" / "WORKSHOP.md", ROOT / "WORKSHOP.md")
+    shutil.copy(ROOT / "attendee" / "SETUP.md", ROOT / "SETUP.md")
 
     shutil.rmtree(ROOT / "attendee")
     shutil.rmtree(ROOT / "lab")  # the lab is only for the host's reveal

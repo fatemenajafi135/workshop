@@ -116,14 +116,21 @@ def setting(name: str) -> str:
 
 
 def load_env(path: Path = ENV_FILE) -> None:
-    """Copy KEY=value lines from .env into the environment. Real env vars win."""
+    """Copy KEY=value lines from .env into the environment.
+
+    Real environment variables win. If a key appears twice in the file, the last one wins
+    (so uncommenting a second provider's lines works, even if the first is still on).
+    """
     if not path.exists():
         return
+    values = {}
     for line in path.read_text().splitlines():
         line = line.strip()
         if line and not line.startswith("#") and "=" in line:
             key, _, value = line.partition("=")
-            os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+            values[key.strip()] = value.strip().strip("\"'")
+    for key, value in values.items():
+        os.environ.setdefault(key, value)
 
 
 load_env()

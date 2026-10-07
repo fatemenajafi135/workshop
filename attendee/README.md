@@ -2,9 +2,9 @@
 
 A workshop: you build the heart of a coding agent in about 10 lines, then find out why real ones are much bigger.
 
-**Start here: [WORKSHOP.md](WORKSHOP.md)**
+**Setup (before the workshop): [SETUP.md](SETUP.md).  The guide for the day: [WORKSHOP.md](WORKSHOP.md)**
 
-Before the workshop:
+The short version of the setup:
 
 ```bash
 make setup      # then put your API key in .env (any OpenAI-compatible provider works)

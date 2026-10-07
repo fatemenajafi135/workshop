@@ -9,20 +9,19 @@ Stuck at any point? `make catch-up STEP=...` gives you the finished file (see th
 
 ---
 
-## Before the workshop (do this at home, 15 min)
+## Before the workshop (do this at home, 15 to 20 min)
 
-You need **Docker**, **Python 3.12+**, **git**, **make** and an **API key** from any provider (see step 3).
-Ubuntu and macOS work directly. Windows: use **WSL2** and run everything inside it.
-No `make`? Ubuntu: `sudo apt install make`. macOS: `xcode-select --install`. Or use the plain commands at the end of this guide.
+**Follow [SETUP.md](SETUP.md).** It has every step, what you should see, and what to do when something fails.
+The short version:
 
 ```bash
 git clone <repo-url> mini_coding_agent
 cd mini_coding_agent
-make setup        # downloads about 150 MB: do it on good wifi, before the day!
+make setup        # downloads a few hundred MB: do it on good wifi, before the day!
 ```
 
 `make setup` also creates a file called `.env`. Open it and:
-1. Pick your provider (Vercel, OpenRouter, OpenAI, Anthropic, Google, or Ollama on your own computer). Remove the `#` in front of its `BASE_URL` and `MODEL` lines, and put a `#` in front of the others.
+1. Pick your provider (Vercel, OpenRouter, OpenAI, Anthropic, Google, or Ollama on your own computer). Remove the `#` in front of its `BASE_URL` and `MODEL` lines. If two providers are on, the one lower in the file is used, so put a `#` in front of the one you don't want.
 2. Put your key in `API_KEY=`.
 
 ```bash
@@ -33,7 +32,7 @@ make check        # every line must show ✓. This is your ticket to the worksho
 - *"ALL_PROXY is a socks:// proxy"* → run `unset ALL_PROXY all_proxy`.
 - *"Docker is installed but not running"* → start Docker Desktop (macOS) or `sudo systemctl start docker` (Linux).
 
-**Cost:** one bug costs about 2 cents with a small model. The whole workshop costs well under $1.
+**Cost:** one bug costs a few cents with a small model. The whole workshop should cost around $1 or less. Your provider's dashboard shows the real number.
 
 ---
 
