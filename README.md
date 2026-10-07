@@ -25,6 +25,7 @@ If `make check` complains about `ALL_PROXY ... socks://`, run `unset ALL_PROXY a
 
 | Command | What it does |
 |---|---|
+| `make demo` | Use the app like a user, in the sandbox: shows the bug before, and the fix after |
 | `make run BUG=01` | Fresh sandbox with bug 01 planted, then the agent works on its issue |
 | `make ask TASK="..."` | Any task, in the sandbox as it is now |
 | `make test` | Run the test suite in the sandbox |

@@ -15,7 +15,7 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset run ask score lab fake test check verify-bugs
+.PHONY: setup reset demo run ask score lab fake test check verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -32,6 +32,10 @@ reset:
 	docker run -d --name $(CONTAINER) --network none --memory 512m --pids-limit 256 $(IMAGE) > /dev/null
 	if [ "$(BUG)" != none ]; then cat $(PATCHES) | docker exec -i $(CONTAINER) git apply; fi
 	docker exec $(CONTAINER) sh -c "git init -q && git add -A && git commit -q -m baseline"
+
+# Use the app like a user would, in the sandbox: see the bug before, and the fix after.
+demo:
+	docker exec $(CONTAINER) python -m splitter
 
 # Fresh sandbox with the bug planted, then let the agent loose on its issue.
 run: reset
