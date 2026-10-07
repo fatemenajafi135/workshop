@@ -1,0 +1,5 @@
+# Only the demo project goes into the image.
+*
+!demo_project
+**/__pycache__
+**/.pytest_cache
