@@ -3,10 +3,10 @@
     python3 tools/build_workshop.py
 
 What it does: starts a fresh `workshop` branch from the last commit on `main`, moves the finished
-files into solutions/, puts the TODO versions from attendee/ in their place, and removes what
+files into solutions/, puts the TODO versions from workshop_files/todo_versions/ in their place, and removes what
 attendees don't need (the lab, CLAUDE.md). It then goes back to `main`.
 The `workshop` branch is thrown away and rebuilt every time: never edit it by hand.
-Change attendee/ on `main`, then run this again.
+Change workshop_files/ on `main`, then run this again.
 """
 
 import re
@@ -51,13 +51,13 @@ def build() -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(ROOT / path, target)
 
-    for source in (ROOT / "attendee" / "agent").rglob("*.py"):  # the TODO versions
-        shutil.copy(source, ROOT / "agent" / source.relative_to(ROOT / "attendee" / "agent"))
-    shutil.copy(ROOT / "attendee" / "README.md", ROOT / "README.md")
-    shutil.copy(ROOT / "attendee" / "WORKSHOP.md", ROOT / "WORKSHOP.md")
-    shutil.copy(ROOT / "attendee" / "SETUP.md", ROOT / "SETUP.md")
+    todo_versions = ROOT / "workshop_files" / "todo_versions"
+    for source in todo_versions.rglob("*.py"):  # the TODO versions
+        shutil.copy(source, ROOT / "agent" / source.relative_to(todo_versions))
+    for guide in ["README.md", "WORKSHOP.md", "SETUP.md"]:
+        shutil.copy(ROOT / "workshop_files" / guide, ROOT / guide)
 
-    shutil.rmtree(ROOT / "attendee")
+    shutil.rmtree(ROOT / "workshop_files")
     shutil.rmtree(ROOT / "lab")  # the lab is only for the host's reveal
     for name in ["CLAUDE.md", "tools/build_workshop.py"]:
         (ROOT / name).unlink()

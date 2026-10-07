@@ -4,7 +4,7 @@ A coding agent in ~15 lines, plus everything that shows why real ones are longer
 a sandbox, a permission gate, a stop check, a budget, context trimming, a
 scoreboard, and a lab where the agent optimizes code on its own for hours.
 
-> This README is the presenter's version (branch `main`). Attendees get the `workshop` branch: see `attendee/WORKSHOP.md`.
+> This README is the presenter's version (branch `main`). Attendees get the `workshop` branch: see `workshop_files/WORKSHOP.md`.
 
 ## Setup
 
@@ -34,7 +34,7 @@ If `make check` complains about `ALL_PROXY ... socks://`, run `unset ALL_PROXY a
 | `make lab` | The outer loop, for 2 hours. `LAB_HOURS=0.5` for less |
 | `make fake` | A free fake model for testing the harness (see below) |
 | `make check-mission MISSION=x` | Free tests for a mission (63 in total, no AI) |
-| `python3 tools/build_workshop.py` | Rebuild the attendee branch `workshop` from `main` (see `attendee/`) |
+| `python3 tools/build_workshop.py` | Rebuild the attendee branch `workshop` from `main` (see `workshop_files/HOW_THIS_WORKS.md`) |
 | `make verify-bugs` | Check that each bug breaks exactly its tests (after changing the demo project) |
 
 Add `MISSIONS=none` (or a list like `MISSIONS=budget,stop_check`) to `run`, `ask` or

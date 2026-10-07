@@ -44,7 +44,7 @@ tools/fake_llm.py # scripted OpenAI-compatible fake model, `make fake`; free har
 tools/catch_up.py # `make catch-up STEP=loop|<mission>|missions|all`: copy finished solutions (attendee branch only), keeps theirs as .mine
 tools/build_workshop.py # builds the `workshop` branch from `main`
 tests_missions/  # free tests (63) for what attendees write: `make check-mission MISSION=x`
-attendee/        # overlay for the attendee version: TODO core.py + mission stubs, WORKSHOP.md (the guide), README.md
+workshop_files/  # the attendee version's own files: todo_versions/ (TODO core.py + mission stubs), WORKSHOP.md, SETUP.md, README.md; see HOW_THIS_WORKS.md
 check.py         # verifies Python, Docker, sandbox, test runner, model call (stops at first problem)
 lab/             # host-only outer loop: lab.py, optimal.py (slow target), bench.py (hidden), test_optimal.py
 Dockerfile
@@ -90,7 +90,7 @@ Autoresearch-style outer loop: the agent makes `fewest_transfers()` (exact, slow
 
 ## Git branches
 
-`main` is the full presenter version. `workshop` is the attendee version, **generated** by `python3 tools/build_workshop.py` (thrown away and rebuilt each time; never edit it by hand; commit on `main` first). It moves the finished files into `solutions/`, puts `attendee/` in their place, removes `lab/` and CLAUDE.md. `HOST.md` (the host's script) and `REPORT.md` are private: excluded in `.git/info/exclude`, not in git. The older branch plan below is superseded: no per-mission branches, `make catch-up` instead.
+`main` is the full presenter version. `workshop` is the attendee version, **generated** by `python3 tools/build_workshop.py` (thrown away and rebuilt each time; never edit it by hand; commit on `main` first). It moves the finished files into `solutions/`, puts `workshop_files/todo_versions/` in their place, removes `lab/` and CLAUDE.md. `HOST.md` (the host's script) and `REPORT.md` are private: excluded in `.git/info/exclude`, not in git. The older branch plan below is superseded: no per-mission branches, `make catch-up` instead.
 
 - `start`: what attendees clone (core loop is TODO)
 - `step-1-loop`: working core loop
