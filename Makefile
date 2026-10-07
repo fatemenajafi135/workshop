@@ -9,7 +9,7 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset test check verify-bugs
+.PHONY: setup reset run test check verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -26,6 +26,10 @@ reset:
 	docker run -d --name $(CONTAINER) --network none --memory 512m --pids-limit 256 $(IMAGE) > /dev/null
 	cat $(PATCHES) | docker exec -i $(CONTAINER) git apply
 	docker exec $(CONTAINER) sh -c "git init -q && git add -A && git commit -q -m baseline"
+
+# Fresh sandbox with the bug planted, then let the agent loose on its issue.
+run: reset
+	.venv/bin/python -m agent.core bugs/$(BUG)-*/issue.md
 
 # Run the test suite inside the container.
 test:

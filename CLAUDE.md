@@ -43,7 +43,7 @@ scoreboard.py    # runs the agent on every bug in a fresh container, prints a ta
 check.py         # verifies Python, Docker, sandbox, test runner, model call (stops at first problem)
 lab/             # host-only outer-loop demo (built last)
 Dockerfile
-Makefile         # setup, reset, test, check, verify-bugs (later: run, score)
+Makefile         # setup, reset, run, test, check, verify-bugs (later: score)
 requirements.txt # host packages: openai, rich
 .env.example     # BASE_URL, API_KEY, MODEL
 README.md        # attendee-facing instructions
