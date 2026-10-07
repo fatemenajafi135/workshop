@@ -52,7 +52,9 @@ def main() -> None:
 
 def passes_its_test(name: str) -> bool:
     test = ROOT / "tests_missions" / f"test_{name}.py"
-    command = [sys.executable, "-m", "pytest", str(test), "-q", "-p", "no:cacheprovider"]
+    venv_python = ROOT / ".venv" / "bin" / "python"  # the project's Python has pytest, the system's may not
+    command = [str(venv_python if venv_python.exists() else sys.executable), "-m", "pytest", str(test), "-q",
+               "-p", "no:cacheprovider"]
     return subprocess.run(command, capture_output=True, cwd=ROOT).returncode == 0
 
 
