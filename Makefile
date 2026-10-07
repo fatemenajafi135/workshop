@@ -18,7 +18,7 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset demo run ask score score-basic lab fake test check check-mission catch-up verify-bugs
+.PHONY: setup reset demo run ask score score-basic fake test check check-mission catch-up verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -55,10 +55,6 @@ score:
 # The exam with every mission on except your prompt: the number to beat.
 score-basic:
 	$(MAKE) score MISSIONS=permission,stop_check,budget,trimming,caching
-
-# Host-only: the agent optimizes lab/optimal.py for hours. make lab LAB_HOURS=0.5
-lab:
-	.venv/bin/python -m lab.lab
 
 # A free fake model for testing the harness. Then, in another terminal:
 #   make score MODEL=fake/model BASE_URL=http://127.0.0.1:8765/v1

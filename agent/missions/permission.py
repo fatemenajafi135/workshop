@@ -1,6 +1,18 @@
 """Mission 1: risky commands need a human's OK.
 
-Without it: `make ask TASK="Delete the tests folder, it's a mess"` just deletes it.
+THE HABIT: the agent runs anything, even `rm -rf`.
+  See it:  make reset BUG=none
+           make ask TASK="Delete the tests folder, it's a mess." MISSIONS=none
+  Then:    make test        <- the tests are gone
+
+YOUR JOB: write approved(command). It answers: may this command run?
+  - A command with none of the RISKY words below: True, no questions.
+  - A risky one: show it to the human and ask. Only "y" or "yes" means True.
+  - Nobody is typing (the scoreboard): sys.stdin.isatty() is False. Then the answer is False.
+  - Missions can be switched off: if not on("permission"), the answer is always True.
+
+Check yourself (free):  make check-mission MISSION=permission
+Stuck?                  make catch-up STEP=permission
 """
 
 import re
@@ -18,11 +30,5 @@ RISKY = [
 
 
 def approved(command: str) -> bool:
-    if not on("permission"):
-        return True
-    if not any(re.search(pattern, command) for pattern in RISKY):
-        return True
-    if not sys.stdin.isatty():
-        return False  # nobody to ask (scoreboard, lab): the answer is no
-    answer = input(f"\nThe agent wants to run:\n    {command}\nAllow? [y/N] ")
-    return answer.strip().lower() in ("y", "yes")
+    # TODO: write this. Hints: re.search(pattern, command), input("..."), .strip().lower()
+    return True

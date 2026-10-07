@@ -2,6 +2,10 @@
 
     make run BUG=01                     # fix a bug
     make ask TASK="what's in /work?"    # any task, in the current sandbox
+
+YOUR JOB (workshop step 1): fill in the four TODOs in solve(). About 10 lines in total.
+Check yourself, free and instant:   make check-mission MISSION=loop
+Stuck? Get the finished file:       make catch-up STEP=loop
 """
 
 import argparse
@@ -24,31 +28,38 @@ def solve(task: str, trace: Trace, container: str = sandbox.CONTAINER) -> str:
         {"role": "user", "content": task},
     ]
     while True:
-        out_of_budget = budget.exceeded(trace)
+        out_of_budget = budget.exceeded(trace)  # mission 3 (given)
         if out_of_budget:
             return out_of_budget
 
+        # What the model gets to see: missions 4 and 6 (given)
         context = caching.mark(trimming.trim(messages))
-        reply = llm.ask(context, stop=STOP_AFTER_COMMAND)
-        messages.append({"role": "assistant", "content": reply.text})
-        trace.model_said(reply)
 
-        command = find_command(reply.text)
+        # TODO 1: ask the model.
+        #   reply = llm.ask(context, stop=STOP_AFTER_COMMAND)
+        #   Then add reply.text to `messages` as an {"role": "assistant", ...} message,
+        #   and call trace.model_said(reply).
+
+        # TODO 2: find the command in the reply, with find_command(reply.text).
+        command = None
+
         if command is None:  # no command: the model thinks it's done
-            problem = stop_check.unfinished(container)
+            problem = stop_check.unfinished(container)  # mission 2 (given)
             if problem is None:
                 return "done"
             trace.note("tests still fail, sending the failures back")
             messages.append({"role": "user", "content": problem})
             continue
 
-        if permission.approved(command):
-            output = sandbox.run(command, container)
-        else:
+        if not permission.approved(command):  # mission 1 (given)
             trace.note(f"refused: {command}")
             output = "The user did not allow this command. Find another way."
-        messages.append({"role": "user", "content": output})
-        trace.ran(command, output)
+        else:
+            # TODO 3: run the command in the sandbox: sandbox.run(command, container)
+            output = "TODO"
+
+        # TODO 4: send the output back to the model, as a {"role": "user", ...} message,
+        #   and call trace.ran(command, output).
 
 
 def find_command(text: str) -> str | None:

@@ -1,7 +1,11 @@
 """Mission 5 (optional): the system prompt. Change it, then measure with `make score`.
 
 Compare: make score-basic                                   (basic prompt)
-         make score                                         (better prompt)
+         make score                                         (your prompt)
+
+YOUR JOB (the competition): write BETTER below. It's words, not code.
+Check yourself (free):  make check-mission MISSION=prompt
+Stuck?                  make catch-up STEP=prompt
 """
 
 from agent.missions import on
@@ -17,13 +21,11 @@ Run tests with `python -m pytest`. Edit files with sed, or rewrite them with
 cat > file <<'EOF'. When the task is done, reply without a bash block.
 """
 
+# TODO: this is YOUR prompt. Add what you think the agent needs to know, after BASIC.
+# Ideas: reproduce first? read before editing? never touch the tests? check everything at the end?
+# Then measure it: make score-basic                                   (basic prompt)
+#                  make score                                         (your prompt)
 BETTER = BASIC + """
-How to work:
-- First reproduce the problem: run the whole test suite and read the failures.
-- Read the code involved before changing it. Find the cause, not just the symptom.
-- Fix the code, never the tests. Keep the change small.
-- Before you finish, run the whole test suite again. Only stop when all tests pass.
-- Always use a ```bash block (not ```sh), and only one per reply.
 """
 
 
