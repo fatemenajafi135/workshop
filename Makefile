@@ -4,6 +4,9 @@ BUG = 01
 # Which missions are on: all, none, or a list like budget,stop_check (see agent/missions/).
 MISSIONS = all
 export MISSIONS
+# Which bugs `make score` runs: empty = all, or a list like 01,04,05.
+BUGS =
+export BUGS
 
 # BUG=03 plants bugs/03-*/bug.patch, BUG=all plants every bug, BUG=none plants nothing.
 ifeq ($(BUG),all)
@@ -12,7 +15,7 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset run ask test check verify-bugs
+.PHONY: setup reset run ask score test check verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -37,6 +40,10 @@ run: reset
 # Any task, in the sandbox as it is now: make ask TASK="Delete the tests folder"
 ask:
 	.venv/bin/python -m agent.core "$(TASK)"
+
+# Every bug in its own fresh sandbox, all at once, then one table.
+score:
+	.venv/bin/python scoreboard.py
 
 # Run the test suite inside the container.
 test:

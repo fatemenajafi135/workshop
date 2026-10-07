@@ -14,7 +14,7 @@ def exceeded(trace) -> str | None:
     if not on("budget"):
         return None
     if trace.steps >= MAX_STEPS:
-        return f"out of budget: {MAX_STEPS} steps"
+        return f"budget: {MAX_STEPS} steps used"
     if trace.cost is not None and trace.cost >= MAX_COST:
-        return f"out of budget: ${trace.cost:.2f} spent (limit ${MAX_COST:.2f})"
+        return f"budget: ${trace.cost:.2f} spent (limit ${MAX_COST:.2f})"
     return None
