@@ -33,6 +33,8 @@ If `make check` complains about `ALL_PROXY ... socks://`, run `unset ALL_PROXY a
 | `make score` | The exam: bugs 01, 04, 05 in their own sandboxes, in parallel, one table. `BUGS=all` for every bug, `BUGS=02,03` to choose. What the agent changed: `runs/score-<time>/<bug>.diff` |
 | `make lab` | The outer loop, for 2 hours. `LAB_HOURS=0.5` for less |
 | `make fake` | A free fake model for testing the harness (see below) |
+| `make check-mission MISSION=x` | Free tests for a mission (63 in total, no AI) |
+| `python3 tools/build_workshop.py` | Rebuild the attendee branch `workshop` from `main` (see `attendee/`) |
 | `make verify-bugs` | Check that each bug breaks exactly its tests (after changing the demo project) |
 
 Add `MISSIONS=none` (or a list like `MISSIONS=budget,stop_check`) to `run`, `ask` or

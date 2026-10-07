@@ -40,7 +40,11 @@ agent/
 demo_project/    # clean `splitter` package + pytest tests (all green)
 bugs/<id>/       # issue.md (what a user would write), bug.patch, test.txt
 scoreboard.py    # runs the agent on every bug in a fresh container, prints a table
-tools/fake_llm.py # scripted OpenAI-compatible fake model, `make fake`; free harness testing
+tools/fake_llm.py # scripted OpenAI-compatible fake model, `make fake`; free harness testing (STRICT=1 acts like a provider that rejects `stop`/caching marks)
+tools/catch_up.py # `make catch-up STEP=loop|<mission>|missions|all`: copy finished solutions (attendee branch only), keeps theirs as .mine
+tools/build_workshop.py # builds the `workshop` branch from `main`
+tests_missions/  # free tests (63) for what attendees write: `make check-mission MISSION=x`
+attendee/        # overlay for the attendee version: TODO core.py + mission stubs, WORKSHOP.md (the guide), README.md
 check.py         # verifies Python, Docker, sandbox, test runner, model call (stops at first problem)
 lab/             # host-only outer loop: lab.py, optimal.py (slow target), bench.py (hidden), test_optimal.py
 Dockerfile
@@ -86,7 +90,7 @@ Autoresearch-style outer loop: the agent makes `fewest_transfers()` (exact, slow
 
 ## Git branches
 
-`main` is currently the full presenter version. The attendee version (likely more minimal) is still to be designed; the branches below are the original plan for it.
+`main` is the full presenter version. `workshop` is the attendee version, **generated** by `python3 tools/build_workshop.py` (thrown away and rebuilt each time; never edit it by hand; commit on `main` first). It moves the finished files into `solutions/`, puts `attendee/` in their place, removes `lab/` and CLAUDE.md. `HOST.md` (the host's script) and `REPORT.md` are private: excluded in `.git/info/exclude`, not in git. The older branch plan below is superseded: no per-mission branches, `make catch-up` instead.
 
 - `start`: what attendees clone (core loop is TODO)
 - `step-1-loop`: working core loop
@@ -121,5 +125,5 @@ Autoresearch-style outer loop: the agent makes `fewest_transfers()` (exact, slow
 ## Open decisions
 
 - Which model for the session (default in `.env.example`: `anthropic/claude-haiku-4.5`), and a shared gateway key with a hard spending cap
-- The attendee version: what they get, how minimal, and its branches
+- Real-model checks still open: cost of `make score` with everything on, cost per hour of `make lab`, whether the real model shows habits 1-3 with `MISSIONS=none`
 - Model choice by real scoreboard runs: cost per bug, not price per token (gpt-5-mini used 17x more output tokens than Haiku on the same small task, because of hidden reasoning)
