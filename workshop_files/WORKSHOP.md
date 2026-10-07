@@ -15,7 +15,7 @@ Stuck at any point? `make catch-up STEP=...` gives you the finished file (see th
 The short version:
 
 ```bash
-git clone <repo-url> mini_coding_agent
+git clone https://github.com/fatemenajafi135/workshop.git mini_coding_agent
 cd mini_coding_agent
 make setup        # downloads a few hundred MB: do it on good wifi, before the day!
 ```

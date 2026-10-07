@@ -71,7 +71,7 @@ Native Windows does **not** work. Use **WSL2**, which gives you Ubuntu inside Wi
 ## Step 2: Get the code
 
 ```bash
-git clone <repo-url> mini_coding_agent
+git clone https://github.com/fatemenajafi135/workshop.git mini_coding_agent
 cd mini_coding_agent
 ls
 ```
