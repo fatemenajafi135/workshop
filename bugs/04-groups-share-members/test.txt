@@ -1,0 +1,1 @@
+tests/test_group.py::test_new_group_has_no_members

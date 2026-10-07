@@ -1,0 +1,4 @@
+tests/test_balances.py::test_balances_add_up_to_zero
+tests/test_balances.py::test_leftover_cent_goes_to_first_participant
+tests/test_expenses.py::test_leftover_cents_go_to_the_first_shares
+tests/test_expenses.py::test_shares_always_add_up_to_the_amount

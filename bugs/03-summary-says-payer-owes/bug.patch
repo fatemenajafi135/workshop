@@ -1,0 +1,19 @@
+diff --git a/splitter/report.py b/splitter/report.py
+index 9fd5e79..367c3e0 100644
+--- a/splitter/report.py
++++ b/splitter/report.py
+@@ -10,10 +10,10 @@ def summary(group: Group) -> str:
+     current = balances(group)
+     lines = [group.name, ""]
+     for person, balance in current.items():
+-        if balance > 0:
+-            lines.append(f"{person} is owed {format_eur(balance)}")
+-        elif balance < 0:
+-            lines.append(f"{person} owes {format_eur(-balance)}")
++        if balance < 0:
++            lines.append(f"{person} is owed {format_eur(-balance)}")
++        elif balance > 0:
++            lines.append(f"{person} owes {format_eur(balance)}")
+         else:
+             lines.append(f"{person} is settled up")
+ 

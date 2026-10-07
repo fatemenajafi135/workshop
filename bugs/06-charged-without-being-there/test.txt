@@ -1,0 +1,5 @@
+tests/test_balances.py::test_leftover_cent_goes_to_first_participant
+tests/test_balances.py::test_person_who_was_not_there_pays_nothing
+tests/test_balances.py::test_trip_balances
+tests/test_report.py::test_trip_summary
+tests/test_settle.py::test_trip_settles

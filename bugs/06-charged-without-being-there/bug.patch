@@ -1,0 +1,14 @@
+diff --git a/splitter/balances.py b/splitter/balances.py
+index 77a848e..6fc4017 100644
+--- a/splitter/balances.py
++++ b/splitter/balances.py
+@@ -14,7 +14,7 @@ def balances(group: Group) -> dict[str, int]:
+     result = {person: 0 for person in group.members}
+     for expense in group.expenses:
+         result[expense.payer] += expense.amount
+-        shares = split_equal(expense.amount, len(expense.participants))
+-        for person, share in zip(expense.participants, shares):
++        shares = split_equal(expense.amount, len(group.members))
++        for person, share in zip(group.members, shares):
+             result[person] -= share
+     return result

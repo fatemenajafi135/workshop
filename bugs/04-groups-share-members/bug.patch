@@ -1,0 +1,16 @@
+diff --git a/splitter/group.py b/splitter/group.py
+index 4b46c92..37df567 100644
+--- a/splitter/group.py
++++ b/splitter/group.py
+@@ -5,9 +5,9 @@ from splitter.money import to_cents
+ 
+ 
+ class Group:
+-    def __init__(self, name: str, members: list[str] | None = None):
++    def __init__(self, name: str, members: list[str] = []):
+         self.name = name
+-        self.members = list(members or [])
++        self.members = members
+         self.expenses: list[Expense] = []
+ 
+     def add_member(self, name: str) -> str:

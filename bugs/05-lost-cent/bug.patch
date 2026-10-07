@@ -1,0 +1,12 @@
+diff --git a/splitter/expenses.py b/splitter/expenses.py
+index 9c3517b..cae7a0d 100644
+--- a/splitter/expenses.py
++++ b/splitter/expenses.py
+@@ -19,5 +19,5 @@ def split_equal(amount: int, n: int) -> list[int]:
+     """
+     if n < 1:
+         raise ValueError("need at least one person to split between")
+-    share, leftover = divmod(amount, n)
+-    return [share + 1 if i < leftover else share for i in range(n)]
++    share = amount // n
++    return [share] * n
