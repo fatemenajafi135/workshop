@@ -28,30 +28,31 @@ optimizes code by itself for the whole session).
 - The model replies in plain text with one ```bash``` block per step. No native tool-calling: keeps the loop model-agnostic and easy to explain on a slide. No bash block = the agent thinks it's done.
 - Model and API key come from `.env` (`MODEL=`, `API_KEY=`, optional `BASE_URL=`). One small wrapper, `agent/llm.py`, using the `openai` SDK against any OpenAI-compatible endpoint; default is **Vercel AI Gateway** (one key, most providers). The only model name in the repo is the default in `.env.example`.
 
-## Planned layout
+## Layout
 
 ```
 agent/
-  core.py        # the ~10-line loop (TODO version on `start`, full on solution branches)
-  llm.py         # model wrapper, returns text + token usage
+  core.py        # the loop: solve() ~25 lines, one visible call per mission
+  llm.py         # model wrapper: ask(messages) -> text, tokens, cost (from the endpoint's price list)
   sandbox.py     # run(cmd) -> output, via docker exec, with timeout and output truncation
   trace.py       # colored step-by-step terminal output + saves runs/<id>.json
-  missions/      # one file per mission, with TODOs
+  missions/      # one file per mission; MISSIONS=none|list switches them off to show the habit
 demo_project/    # clean `splitter` package + pytest tests (all green)
 bugs/<id>/       # issue.md (what a user would write), bug.patch, test.txt
 scoreboard.py    # runs the agent on every bug in a fresh container, prints a table
 check.py         # verifies Python, Docker, sandbox, test runner, model call (stops at first problem)
-lab/             # host-only outer-loop demo (built last)
+lab/             # host-only outer loop: lab.py, optimal.py (slow target), bench.py (hidden), test_optimal.py
 Dockerfile
-Makefile         # setup, reset, run, test, check, verify-bugs (later: score)
+Makefile         # setup, reset, run, ask, score, lab, test, check, verify-bugs
 requirements.txt # host packages: openai, rich
 .env.example     # BASE_URL, API_KEY, MODEL
-README.md        # attendee-facing instructions
+README.md        # presenter's README (attendee version still to come)
 ```
 
-## Missions (step 4)
+## Missions
 
-Each mission starts with a failure attendees can see, then a small fix (10–30 lines):
+Each mission starts with a failure attendees can see, then a small fix (10–30 lines).
+Each is a file in `agent/missions/` called once from `solve()`; `MISSIONS=none` shows the failure again:
 
 1. **Permission gate**: risky commands (`rm`, `git push`, `curl`, ...) need human approval
 2. **Real stop condition**: before finishing, the harness runs the tests and sends failures back
@@ -65,7 +66,9 @@ Each mission starts with a failure attendees can see, then a small fix (10–30 
 - `demo_project/` is **clean**. Each bug is a patch in `bugs/<id>/`, applied when the container starts: **one bug per container**, so the full suite has exactly that bug's red tests. `BUG=all` applies every patch.
 - After applying the patch, the container's `/work` gets a fresh `git init` + commit, so history doesn't reveal the fix and `git diff` shows only the agent's changes.
 - 6 bugs, independent of each other, mixed difficulty (one trivial, one that needs reading two files, one the agent often gets wrong).
-- Fixed = the full suite is green.
+- Fixed = the full suite is green and `tests/` is untouched.
+- `BUG=none` gives a clean sandbox (for `make ask` demos and the lab).
+- The sandbox sets `PYTHONDONTWRITEBYTECODE=1`: a stale `.pyc` once hid a same-size edit made in the same second as the last test run.
 
 ## Platforms
 
@@ -73,13 +76,15 @@ Ubuntu and macOS; Windows only via WSL2. The Makefile must work with GNU make 3.
 
 ## Scoreboard
 
-For each bug: fresh container, run the agent, run the tests, record fixed (yes/no), steps, tokens/cost, time. Print one table. Pairs run it on their own version of the agent.
+For each bug, in parallel: fresh container, run the agent (killed after 5 min, no stdin so the permission gate refuses), run the tests, check `tests/` is untouched. One table: result, steps, tokens, estimated $ (gateway prices), time, why it stopped. Saved in `runs/score-<time>/`.
 
 ## Lab demo (host only, built last)
 
-Autoresearch-style outer loop: an agent tries to make a slow function faster. Each attempt has a fixed time budget. A change is kept only if tests pass and runtime improves; every kept change is a git commit. Must run unattended for ~2 hours and leave a readable log for the reveal.
+Autoresearch-style outer loop: the agent makes `fewest_transfers()` (exact, slow, in `lab/optimal.py`) faster. Each attempt: fresh agent, 5 minutes, told the history of earlier attempts. Kept only if tests pass untouched and the hidden benchmark (3 groups of 12–13 people, correct shortest answers, people renamed per repeat) is ≥10% faster; every kept change is a git commit in the lab sandbox, exported to `lab/output/best/`. Log: `lab/output/log.md`.
 
 ## Git branches
+
+`main` is currently the full presenter version. The attendee version (likely more minimal) is still to be designed; the branches below are the original plan for it.
 
 - `start`: what attendees clone (core loop is TODO)
 - `step-1-loop`: working core loop
@@ -114,5 +119,5 @@ Autoresearch-style outer loop: an agent tries to make a slow function faster. Ea
 ## Open decisions
 
 - Which model for the session (default in `.env.example`: `anthropic/claude-haiku-4.5`), and a shared gateway key with a hard spending cap
-- How cost is shown on the scoreboard (tokens only, or estimated money)
-- The lab demo's target function and metric
+- The attendee version: what they get, how minimal, and its branches
+- First real-model runs: none yet (all testing so far used a scripted fake model)
