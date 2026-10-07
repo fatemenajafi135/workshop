@@ -85,7 +85,7 @@ Each one lives in `agent/missions/` and is one visible call in `solve()`.
 | 2. Stop check | `stop_check.py` | Runs one test, sees green, stops | `make run BUG=04 MISSIONS=none`, then `make test` |
 | 3. Budget | `budget.py` | Never gives up, never stops spending | `make run BUG=04 MISSIONS=stop_check` (stop with Ctrl+C) |
 | 4. Trimming *(optional)* | `trimming.py` | Re-sends every old output, tokens explode | Compare token counts in the trace with `MISSIONS=stop_check,budget`. Trims in batches of 10 messages, so caching keeps working |
-| 5. System prompt *(optional)* | `prompt.py` | A vague prompt | `make score MISSIONS=permission,stop_check,budget` vs `make score` |
+| 5. System prompt *(optional)* | `prompt.py` | A vague prompt | `make score-basic` vs `make score` |
 | 6. Caching *(optional)* | `caching.py` | Pays full price to re-send the same old text every step | Long runs only (4,096+ tokens): the step header shows `(N cached)` and the cost drops ~9× |
 
 ## Testing without paying

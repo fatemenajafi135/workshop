@@ -1,6 +1,6 @@
 """Mission 5 (optional): the system prompt. Change it, then measure with `make score`.
 
-Compare: make score MISSIONS=permission,stop_check,budget   (basic prompt)
+Compare: make score-basic                                   (basic prompt)
          make score                                         (better prompt)
 """
 

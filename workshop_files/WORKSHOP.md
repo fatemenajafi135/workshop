@@ -112,7 +112,7 @@ Your loop works, but is it a good agent? The host shows three bad habits. Each o
 | 2. **Says "done" too early** | It runs ONE test, sees green, stops. The other tests still fail |
 | 3. **Never gives up** | It keeps going, and keeps spending |
 
-Two more, for later: 4. **Old text piles up** (every step re-sends the whole history, so it costs more and more), 5. **Vague instructions**, 6. **Pays full price** for text the AI has already seen.
+Three more, for later: 4. **Old text piles up** (every step re-sends the whole history, so it costs more and more), 5. **Vague instructions**, 6. **Pays full price** for text the AI has already seen.
 
 ---
 
@@ -144,7 +144,7 @@ Missions 1 to 3 are the best place to start. 4 and 6 are for fast pairs.
 All agents use the **same model** (the host will tell you which). The only thing you change is **your prompt**: the instructions that tell the AI how to work.
 
 1. Get the missions you didn't write: `make catch-up STEP=missions`. (A mission whose free check already passes is left alone: it's yours.)
-2. Run the exam once with the basic prompt: `make score MISSIONS=permission,stop_check,budget`
+2. Run the exam once with the basic prompt: `make score-basic`. Write your numbers down: they are the ones to beat.
 3. Open `agent/missions/prompt.py`. Write your `BETTER` prompt. It's words, not code.
    Ideas: *Should it reproduce the problem first? Read before editing? Never touch the tests? Check everything at the end?*
 4. Run the exam with your prompt: `make score`
@@ -180,7 +180,8 @@ Everything in this repo is yours to take apart. In this order:
 | `make run BUG=03` | The agent works on bug 03 | a little |
 | `make run BUG=03 MISSIONS=none` | Same, with all fixes switched off | a little |
 | `make ask TASK="..."` | Give the agent any task | a little |
-| `make score` | The exam: bugs 01, 04, 05 | a little |
+| `make score` | The exam: bugs 01, 04, 05, with your prompt | a little |
+| `make score-basic` | The same exam with the basic prompt (the number to beat) | a little |
 | `make check-mission MISSION=x` | Free test for your code | no |
 | `make catch-up STEP=x` | Get the finished file | no |
 | `make check` | Is everything ready? | a tiny call |

@@ -1,6 +1,6 @@
 """Mission 5 (optional): the system prompt. Change it, then measure with `make score`.
 
-Compare: make score MISSIONS=permission,stop_check,budget   (basic prompt)
+Compare: make score-basic                                   (basic prompt)
          make score                                         (your prompt)
 
 YOUR JOB (the competition): write BETTER below. It's words, not code.
@@ -23,7 +23,7 @@ cat > file <<'EOF'. When the task is done, reply without a bash block.
 
 # TODO: this is YOUR prompt. Add what you think the agent needs to know, after BASIC.
 # Ideas: reproduce first? read before editing? never touch the tests? check everything at the end?
-# Then measure it: make score MISSIONS=permission,stop_check,budget   (basic prompt)
+# Then measure it: make score-basic                                   (basic prompt)
 #                  make score                                         (your prompt)
 BETTER = BASIC + """
 """

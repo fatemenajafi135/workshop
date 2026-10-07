@@ -18,7 +18,7 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset demo run ask score lab fake test check check-mission catch-up verify-bugs
+.PHONY: setup reset demo run ask score score-basic lab fake test check check-mission catch-up verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -51,6 +51,10 @@ ask:
 # Every bug in its own fresh sandbox, all at once, then one table.
 score:
 	.venv/bin/python scoreboard.py
+
+# The exam with every mission on except your prompt: the number to beat.
+score-basic:
+	$(MAKE) score MISSIONS=permission,stop_check,budget,trimming,caching
 
 # Host-only: the agent optimizes lab/optimal.py for hours. make lab LAB_HOURS=0.5
 lab:
