@@ -4,7 +4,7 @@ A coding agent in ~15 lines, plus everything that shows why real ones are longer
 a sandbox, a permission gate, a stop check, a budget, context trimming, a
 scoreboard, and a lab where the agent optimizes code on its own for hours.
 
-> This README is the presenter's version. The attendee version is still to come.
+> This README is the presenter's version (branch `main`). Attendees get the `workshop` branch: see `attendee/WORKSHOP.md`.
 
 ## Setup
 
