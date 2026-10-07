@@ -1,15 +1,18 @@
 IMAGE = mini-agent-sandbox
 CONTAINER = mini-agent
 BUG = 01
+# Which missions are on: all, none, or a list like budget,stop_check (see agent/missions/).
+MISSIONS = all
+export MISSIONS
 
-# BUG=03 plants bugs/03-*/bug.patch, BUG=all plants every bug.
+# BUG=03 plants bugs/03-*/bug.patch, BUG=all plants every bug, BUG=none plants nothing.
 ifeq ($(BUG),all)
 PATCHES = bugs/*/bug.patch
 else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset run test check verify-bugs
+.PHONY: setup reset run ask test check verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -24,12 +27,16 @@ setup:
 reset:
 	docker rm -f $(CONTAINER) > /dev/null 2>&1 || true
 	docker run -d --name $(CONTAINER) --network none --memory 512m --pids-limit 256 $(IMAGE) > /dev/null
-	cat $(PATCHES) | docker exec -i $(CONTAINER) git apply
+	if [ "$(BUG)" != none ]; then cat $(PATCHES) | docker exec -i $(CONTAINER) git apply; fi
 	docker exec $(CONTAINER) sh -c "git init -q && git add -A && git commit -q -m baseline"
 
 # Fresh sandbox with the bug planted, then let the agent loose on its issue.
 run: reset
 	.venv/bin/python -m agent.core bugs/$(BUG)-*/issue.md
+
+# Any task, in the sandbox as it is now: make ask TASK="Delete the tests folder"
+ask:
+	.venv/bin/python -m agent.core "$(TASK)"
 
 # Run the test suite inside the container.
 test:

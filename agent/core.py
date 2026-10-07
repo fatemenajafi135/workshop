@@ -1,43 +1,49 @@
 """The agent: ask the model, run its command, show it the output, repeat.
 
-Run it with: make run BUG=01
+    make run BUG=01                     # fix a bug
+    make ask TASK="what's in /work?"    # any task, in the current sandbox
 """
 
+import argparse
 import re
-import sys
 from pathlib import Path
 
 from agent import llm, sandbox
-
-SYSTEM_PROMPT = """\
-You are a coding agent. You fix bugs in a Python project in /work.
-
-In every reply, think briefly, then give exactly one shell command in a ```bash block.
-You will get its output back. Each command runs in a fresh bash shell in /work,
-so `cd` does not carry over. There is no internet.
-
-Run tests with `python -m pytest`. Edit files with sed, or rewrite them with
-cat > file <<'EOF'. When the task is done, reply without a bash block.
-"""
+from agent.missions import budget, permission, prompt, stop_check, trimming
+from agent.trace import Trace
 
 
-def solve(task: str) -> None:
+def solve(task: str, trace: Trace, container: str = sandbox.CONTAINER) -> str:
+    """Work on the task until done. Returns why it stopped."""
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": prompt.system_prompt()},
         {"role": "user", "content": task},
     ]
     while True:
-        reply = llm.ask(messages)
+        out_of_budget = budget.exceeded(trace)
+        if out_of_budget:
+            return out_of_budget
+
+        reply = llm.ask(trimming.trim(messages))
         messages.append({"role": "assistant", "content": reply.text})
-        print(reply.text)
+        trace.model_said(reply)
 
         command = find_command(reply.text)
-        if command is None:
-            return  # no command: the model thinks it's done
+        if command is None:  # no command: the model thinks it's done
+            problem = stop_check.unfinished(container)
+            if problem is None:
+                return "done"
+            trace.note("tests still fail, sending the failures back")
+            messages.append({"role": "user", "content": problem})
+            continue
 
-        output = sandbox.run(command)
+        if permission.approved(command):
+            output = sandbox.run(command, container)
+        else:
+            trace.note(f"refused: {command}")
+            output = "The user did not allow this command. Find another way."
         messages.append({"role": "user", "content": output})
-        print(output)
+        trace.ran(command, output)
 
 
 def find_command(text: str) -> str | None:
@@ -46,5 +52,25 @@ def find_command(text: str) -> str | None:
     return match.group(1).strip() if match else None
 
 
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Run the mini coding agent on one task.")
+    parser.add_argument("task", help="a task file (like bugs/01-*/issue.md) or the task text itself")
+    parser.add_argument("--container", default=sandbox.CONTAINER, help="which sandbox to work in")
+    parser.add_argument("--save-to", type=Path, help="where to save the trace (default: runs/)")
+    args = parser.parse_args()
+
+    path = Path(args.task)
+    task = path.read_text() if path.is_file() else args.task
+    label = path.parent.name if path.is_file() else "task"
+    trace = Trace(task, label, args.save_to)
+    try:
+        result = solve(task, trace, args.container)
+    except KeyboardInterrupt:
+        result = "stopped with Ctrl+C"
+    except Exception as error:
+        result = f"crashed: {type(error).__name__}: {error}"
+    trace.finish(result)
+
+
 if __name__ == "__main__":
-    solve(Path(sys.argv[1]).read_text())
+    main()

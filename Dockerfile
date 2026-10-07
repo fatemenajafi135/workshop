@@ -6,6 +6,10 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir pytest==9.1.1
 
+# No .pyc files: a cached .pyc can hide an edit that keeps the file's size and
+# happens in the same second as the last test run (an agent's sed can do that).
+ENV PYTHONDONTWRITEBYTECODE=1
+
 # Not root: a bad command can break /work, not the container itself.
 RUN useradd --create-home agent
 USER agent
