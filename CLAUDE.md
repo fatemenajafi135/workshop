@@ -14,7 +14,7 @@ optimizes code by itself for the whole session).
 
 ## Session flow (the repo must support each step)
 
-1. **Setup (5 min)**: clone, `make setup`, `python check.py`
+1. **Setup (5 min)**: clone, `make setup`, put the key in `.env`, `make check`
 2. **Core loop, live-coded (15 min)**: attendees type the agent loop along with the host
 3. **First run (10 min)**: agent fixes one bug, tests turn green in the terminal
 4. **Missions in pairs (30 min)**: fix the agent's bad habits (see Missions)
@@ -26,7 +26,7 @@ optimizes code by itself for the whole session).
 - The **agent runs on the host** (`agent/`). Every command the model asks for runs **inside a Docker container** via `docker exec` with a timeout. Nothing the model runs touches the host.
 - The demo project is **copied into the image, not bind-mounted**. A bad command can only break the container; `make reset` recreates it.
 - The model replies in plain text with one ```bash``` block per step. No native tool-calling: keeps the loop model-agnostic and easy to explain on a slide. No bash block = the agent thinks it's done.
-- Model and API key come from `.env` (`MODEL=`, `API_KEY=`). One small wrapper, `agent/llm.py`. No hardcoded model names anywhere else.
+- Model and API key come from `.env` (`MODEL=`, `API_KEY=`, optional `BASE_URL=`). One small wrapper, `agent/llm.py`, using the `openai` SDK against any OpenAI-compatible endpoint; default is **Vercel AI Gateway** (one key, most providers). The only model name in the repo is the default in `.env.example`.
 
 ## Planned layout
 
@@ -40,10 +40,12 @@ agent/
 demo_project/    # clean `splitter` package + pytest tests (all green)
 bugs/<id>/       # issue.md (what a user would write), bug.patch, test.txt
 scoreboard.py    # runs the agent on every bug in a fresh container, prints a table
-check.py         # verifies Docker, image build, API key, test runner
+check.py         # verifies Python, Docker, sandbox, test runner, model call (stops at first problem)
 lab/             # host-only outer-loop demo (built last)
 Dockerfile
-Makefile         # setup, reset, run, score
+Makefile         # setup, reset, test, check, verify-bugs (later: run, score)
+requirements.txt # host packages: openai, rich
+.env.example     # BASE_URL, API_KEY, MODEL
 README.md        # attendee-facing instructions
 ```
 
@@ -87,7 +89,7 @@ Autoresearch-style outer loop: an agent tries to make a slow function faster. Ea
 ## Code principles
 
 - **This is teaching code shown on a projector.** Readability beats cleverness. Short files, short functions, obvious names.
-- No agent frameworks. Minimal dependencies: model SDK, `rich` for output, `pytest`. Ask before adding anything else.
+- No agent frameworks. Minimal dependencies: `openai` SDK, `rich` for output, `pytest`. Ask before adding anything else.
 - No hidden magic: if something matters to how the agent behaves, it should be visible in `agent/`.
 - Python 3.12, type hints where they help reading, not everywhere.
 
@@ -111,6 +113,6 @@ Autoresearch-style outer loop: an agent tries to make a slow function faster. Ea
 
 ## Open decisions
 
-- Model/provider for the session, and a shared API key with a hard spending cap
+- Which model for the session (default in `.env.example`: `anthropic/claude-haiku-4.5`), and a shared gateway key with a hard spending cap
 - How cost is shown on the scoreboard (tokens only, or estimated money)
 - The lab demo's target function and metric

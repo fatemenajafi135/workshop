@@ -9,10 +9,13 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset test verify-bugs
+.PHONY: setup reset test check verify-bugs
 
-# Build the sandbox image, then start a fresh container.
+# Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
+	python3 -m venv .venv
+	.venv/bin/pip install -q -r requirements.txt
+	[ -f .env ] || cp .env.example .env
 	docker build -t $(IMAGE) .
 	$(MAKE) reset
 
@@ -27,6 +30,10 @@ reset:
 # Run the test suite inside the container.
 test:
 	docker exec $(CONTAINER) python -m pytest -q
+
+# Is everything ready? Docker, sandbox, tests, model.
+check:
+	.venv/bin/python check.py
 
 # Maintainer check: each bug turns exactly the tests in its test.txt red.
 verify-bugs:
