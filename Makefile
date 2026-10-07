@@ -15,7 +15,7 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset run ask score test check verify-bugs
+.PHONY: setup reset run ask score lab test check verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -44,6 +44,10 @@ ask:
 # Every bug in its own fresh sandbox, all at once, then one table.
 score:
 	.venv/bin/python scoreboard.py
+
+# Host-only: the agent optimizes lab/optimal.py for hours. make lab LAB_HOURS=0.5
+lab:
+	.venv/bin/python -m lab.lab
 
 # Run the test suite inside the container.
 test:
