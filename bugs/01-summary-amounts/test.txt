@@ -1,0 +1,4 @@
+tests/test_money.py::test_format_eur[0-\u20ac0.00]
+tests/test_money.py::test_format_eur[1205-\u20ac12.05]
+tests/test_money.py::test_format_eur[5-\u20ac0.05]
+tests/test_report.py::test_trip_summary

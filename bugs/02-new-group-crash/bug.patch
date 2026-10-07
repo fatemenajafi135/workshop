@@ -1,0 +1,20 @@
+diff --git a/splitter/settle.py b/splitter/settle.py
+index f9ddbac..f6341e7 100644
+--- a/splitter/settle.py
++++ b/splitter/settle.py
+@@ -20,7 +20,7 @@ def settle_up(balances: dict[str, int]) -> list[Transfer]:
+         raise ValueError("balances must add up to zero")
+     open_balances = {person: b for person, b in balances.items() if b != 0}
+     transfers = []
+-    while open_balances:
++    while True:
+         debtor = min(open_balances, key=lambda person: open_balances[person])
+         creditor = max(open_balances, key=lambda person: open_balances[person])
+         amount = min(-open_balances[debtor], open_balances[creditor])
+@@ -28,4 +28,6 @@ def settle_up(balances: dict[str, int]) -> list[Transfer]:
+         open_balances[debtor] += amount
+         open_balances[creditor] -= amount
+         open_balances = {person: b for person, b in open_balances.items() if b != 0}
++        if not open_balances:
++            break
+     return transfers

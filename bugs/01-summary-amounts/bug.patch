@@ -1,0 +1,10 @@
+diff --git a/splitter/money.py b/splitter/money.py
+index d1fdaaf..b86db47 100644
+--- a/splitter/money.py
++++ b/splitter/money.py
+@@ -16,4 +16,4 @@ def format_eur(cents: int) -> str:
+     """Format cents for people: 1205 -> "€12.05", -340 -> "-€3.40"."""
+     sign = "-" if cents < 0 else ""
+     euros, rest = divmod(abs(cents), 100)
+-    return f"{sign}€{euros}.{rest:02d}"
++    return f"{sign}€{euros}.{rest}"
