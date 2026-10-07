@@ -16,7 +16,7 @@ else
 PATCHES = bugs/$(BUG)-*/bug.patch
 endif
 
-.PHONY: setup reset demo run ask score lab fake test check verify-bugs
+.PHONY: setup reset demo run ask score lab fake test check check-mission catch-up verify-bugs
 
 # Install the agent's packages on the host, build the sandbox image, start a fresh container.
 setup:
@@ -66,6 +66,18 @@ test:
 # Is everything ready? Docker, sandbox, tests, model.
 check:
 	.venv/bin/python check.py
+
+# Free, instant tests for what you wrote (no AI, no cost):
+#   make check-mission MISSION=permission   (or loop, stop_check, budget, trimming, caching, prompt)
+#   make check-mission                      (all of them)
+MISSION =
+check-mission:
+	.venv/bin/python -m pytest $(if $(MISSION),tests_missions/test_$(MISSION).py,tests_missions) -q -p no:cacheprovider
+
+# Stuck? Get the finished file: make catch-up STEP=loop  (or a mission name, or all)
+STEP =
+catch-up:
+	python3 tools/catch_up.py $(STEP)
 
 # Maintainer check: each bug turns exactly the tests in its test.txt red.
 verify-bugs:

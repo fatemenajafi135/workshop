@@ -8,6 +8,7 @@ and its Nth reply is line N of that script.
 """
 
 import json
+import os
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -62,6 +63,7 @@ SCRIPTS = {
     ],
 }
 DEFAULT = [bash("python -m pytest -q"), "I could not figure this out."]
+STRICT = os.environ.get("STRICT") == "1"  # act like a provider that rejects `stop` and caching marks
 
 
 def text_of(content):
@@ -95,6 +97,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         request = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         messages = request["messages"]
+        if STRICT and ("stop" in request or any(not isinstance(m["content"], str) for m in messages)):
+            return self.send_json({"error": {"message": "unsupported parameter: stop / content parts",
+                                             "type": "invalid_request_error"}}, 400)
         task = text_of(messages[1]["content"])
         turn = sum(1 for m in messages if m["role"] == "assistant")
         script = next((s for key, s in SCRIPTS.items() if key in task), DEFAULT)

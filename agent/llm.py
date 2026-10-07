@@ -10,7 +10,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from openai import OpenAI
+from openai import BadRequestError, OpenAI
 
 GATEWAY_URL = "https://ai-gateway.vercel.sh/v1"
 ENV_FILE = Path(__file__).parent.parent / ".env"
@@ -31,7 +31,14 @@ def ask(messages: list[dict], stop: list[str] | None = None) -> Reply:
     `stop`: the model stops writing as soon as it writes one of these.
     """
     model = setting("MODEL")
-    response = client().chat.completions.create(model=model, messages=messages, stop=stop)
+    try:
+        response = client().chat.completions.create(model=model, messages=messages, stop=stop)
+        text = response.choices[0].message.content or ""
+    except BadRequestError:
+        # Some providers reject `stop` or the caching mark. Try again without them,
+        # and cut the reply at the first stop word ourselves.
+        response = client().chat.completions.create(model=model, messages=plain(messages))
+        text = cut_at(response.choices[0].message.content or "", stop or [])
     usage = response.usage
     input_tokens = usage.prompt_tokens if usage else 0
     output_tokens = usage.completion_tokens if usage else 0
@@ -40,7 +47,7 @@ def ask(messages: list[dict], stop: list[str] | None = None) -> Reply:
     # Vercel AI Gateway reports the real cost of each call (cache discounts included).
     real_cost = (usage.model_extra or {}).get("cost") if usage else None
     return Reply(
-        text=response.choices[0].message.content or "",
+        text=text,
         input_tokens=input_tokens,
         output_tokens=output_tokens,
         cached_tokens=cached_tokens,
@@ -48,8 +55,31 @@ def ask(messages: list[dict], stop: list[str] | None = None) -> Reply:
     )
 
 
+def cut_at(text: str, stop: list[str]) -> str:
+    """The text up to the first stop word (what `stop` would have given us)."""
+    ends = [text.find(word) for word in stop if word in text]
+    return text[: min(ends)] if ends else text
+
+
+def plain(messages: list[dict]) -> list[dict]:
+    """The same messages, with caching marks turned back into plain text."""
+    return [{"role": m["role"], "content": text_of(m["content"])} for m in messages]
+
+
+def text_of(content: str | list[dict]) -> str:
+    if isinstance(content, str):
+        return content
+    return "".join(part.get("text", "") for part in content)
+
+
 def estimated_cost(model: str, input_tokens: int, output_tokens: int) -> float | None:
-    """For endpoints that don't report the cost: tokens times the listed price."""
+    """For endpoints that don't report the cost: tokens times the price.
+
+    The price comes from .env (PRICE_IN, PRICE_OUT: dollars per million tokens),
+    or from the endpoint's model list if it has one (Vercel AI Gateway does).
+    """
+    if os.environ.get("PRICE_IN") and os.environ.get("PRICE_OUT"):
+        return (input_tokens * float(os.environ["PRICE_IN"]) + output_tokens * float(os.environ["PRICE_OUT"])) / 1e6
     price = prices(model)
     if price is None:
         return None
